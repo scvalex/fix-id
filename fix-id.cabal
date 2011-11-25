@@ -1,0 +1,27 @@
+Name:           fix-id
+Version:        0.1.0
+Cabal-Version:  >= 1.6
+License:        GPL-3
+License-File:   LICENSE
+Stability:      experimental
+Author:         Alexandru Scvortov <scvalex@gmail.com>
+Maintainer:     scvalex@gmail.com
+Homepage:       https://github.com/scvalex/fix-id
+Category:       Web
+Synopsis:       Simple message board
+Build-type:     Simple
+Description:
+        A simple internet message board.
+
+Extra-source-files:     Makefile
+
+Data-files:             README.md
+
+Source-repository head
+  Type:                 git
+  Location:             git://github.com/scvalex/fix-id.git
+
+Executable fix-id
+  Build-Depends:        base >= 4 && <5, interpol >= 0.2, warp
+  Main-Is:              Main.hs
+  Ghc-options:          -Wall
