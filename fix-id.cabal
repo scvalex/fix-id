@@ -26,4 +26,5 @@ Executable fix-id
                         http-types, blaze-builder, text, blaze-html,
                         wai-app-static
   Main-Is:              Main.hs
+  Other-modules:        Handler.NotFound
   Ghc-options:          -Wall
