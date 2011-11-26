@@ -8,14 +8,20 @@ module Handler.Resource (
         resource
     ) where
 
+import Data.Monoid ( Monoid(..) )
+import Logger ( noticeM )
 import Network.Wai ( Application, Request(..) )
 import Network.Wai.Application.Static ( StaticSettings(..)
                                       , staticApp, defaultFileServerSettings
                                       , fileSystemLookup )
+import Text.Interpol ( (^-^) )
 
 resource :: Application
-resource req = let path = pathInfo req
-               in staticApp defaultFileServerSettings
-                      { ssFolder  = fileSystemLookup "r"
-                      , ssListing = Nothing
-                      , ssIndices = [] } req
+resource req = do
+  -- FIXME Make the following log command handle multi-item paths
+  -- correctly
+  noticeM $ "Serving resource " ^-^ mconcat (pathInfo req)
+  staticApp defaultFileServerSettings
+               { ssFolder  = fileSystemLookup "r"
+               , ssListing = Nothing
+               , ssIndices = [] } req

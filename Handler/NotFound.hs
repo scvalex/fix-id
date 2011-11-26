@@ -12,18 +12,21 @@ module Handler.NotFound (
     ) where
 
 import Data.Text ( Text, pack )
+import Logger ( noticeM )
+import Network.HTTP.Types ( statusNotFound )
+import Network.Wai ( Application, Request(..), Response(..) )
 import Text.Blaze ( Html, ToHtml(..) )
 import Text.Blaze.Html5 ( (!) )
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Renderer.Utf8 ( renderHtmlBuilder )
-import Network.HTTP.Types ( statusNotFound )
-import Network.Wai ( Application, Response(..) )
+import Text.Interpol ( (^-^) )
 
 notFound :: Application
-notFound req =
-    return (ResponseBuilder statusNotFound [] . renderHtmlBuilder .
-            notFoundPage . pack $ show req)
+notFound req = do
+  noticeM $ "Not found " ^-^ (rawPathInfo req)
+  return (ResponseBuilder statusNotFound [] . renderHtmlBuilder .
+          notFoundPage . pack $ show req)
 
 notFoundPage :: (ToHtml a) => a -> Html
 notFoundPage comment = do
