@@ -1,5 +1,9 @@
 {-# LANGUAGE TypeFamilies, DeriveDataTypeable, TemplateHaskell #-}
 
+-- | The "Database" module provides a high-level interface for
+-- querying and updating the database.  Internally, we use
+-- @acid-state@ but that should not be the concern of any code outside
+-- this module.
 module Database (
         -- * Types
         Database, Post,
