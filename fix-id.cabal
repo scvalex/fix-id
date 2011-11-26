@@ -24,8 +24,9 @@ Source-repository head
 Executable fix-id
   Build-Depends:        base >= 4 && <5, interpol >= 0.2, warp, wai,
                         http-types, blaze-builder, text, blaze-html,
-                        wai-app-static, hslogger, transformers
+                        wai-app-static, hslogger, transformers,
+                        safecopy, acid-state, containers, mtl
   Main-Is:              Main.hs
   Other-modules:        Handler.NotFound, Handler.Resource,
-                        Logger
+                        Logger, Database
   Ghc-options:          -Wall
