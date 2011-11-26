@@ -21,4 +21,4 @@ dist/setup-config: fix-id.cabal
 	cabal configure
 
 doc: build
-	cabal haddock
+	cabal haddock --executables

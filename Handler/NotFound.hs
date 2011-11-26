@@ -1,5 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+-- FIXME: Add some useful information to the page:
+--   - what page was accessed;
+--   - why the request failed (if reason is known);
+--   - link to the front page (probably in a header);
+--   - links to similarly name pages.
+
+-- | The 'notFound' handler serves a kick-ass \"404 Not Found\" page.
 module Handler.NotFound (
         notFound
     ) where
