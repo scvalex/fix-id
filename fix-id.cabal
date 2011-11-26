@@ -23,6 +23,6 @@ Source-repository head
 
 Executable fix-id
   Build-Depends:        base >= 4 && <5, interpol >= 0.2, warp, wai,
-                        http-types, blaze-builder
+                        http-types, blaze-builder, text
   Main-Is:              Main.hs
   Ghc-options:          -Wall
