@@ -4,11 +4,9 @@ module Main where
 
 import Blaze.ByteString.Builder.Char.Utf8 ( fromText )
 import Handler.NotFound ( notFound )
+import Handler.Resource ( resource )
 import Network.HTTP.Types ( statusOK )
 import Network.Wai ( Application, Request(..), Response(..) )
-import Network.Wai.Application.Static ( StaticSettings(..)
-                                      , staticApp, defaultFileServerSettings
-                                      , fileSystemLookup )
 import Network.Wai.Handler.Warp ( run )
 
 main :: IO ()
@@ -27,9 +25,3 @@ index _ = return (ResponseBuilder statusOK [] (fromText "Main page"))
 
 viewPost :: Application
 viewPost _ = return (ResponseBuilder statusOK [] (fromText "Viewing a post"))
-
-resource :: Application
-resource = staticApp defaultFileServerSettings
-             { ssFolder  = fileSystemLookup "r"
-             , ssListing = Nothing
-             , ssIndices = [] }
