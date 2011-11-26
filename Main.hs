@@ -3,6 +3,7 @@
 module Main where
 
 import Blaze.ByteString.Builder.Char.Utf8 ( fromText )
+import Handler.Index ( index )
 import Handler.NotFound ( notFound )
 import Handler.Resource ( resource )
 import Logger ( setupLogger, noticeM )
@@ -23,9 +24,6 @@ router req = let path = pathInfo req
                   ("post" : path') -> viewPost (req { pathInfo = path' })
                   ("r" : path')    -> resource (req { pathInfo = path' })
                   _                -> notFound req
-
-index :: Application
-index _ = return (ResponseBuilder statusOK [] (fromText "Main page"))
 
 viewPost :: Application
 viewPost _ = return (ResponseBuilder statusOK [] (fromText "Viewing a post"))
