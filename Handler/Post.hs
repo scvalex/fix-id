@@ -24,15 +24,23 @@ post :: Application
 post req = do
   let (Just req') = stripPrefixReq "/post" req
   noticeM $ "Handling post " ^-^ (rawPathInfo req')
-  dispatch [ ("*" &~~ "^/$", noPost)
-           , ("*" &~~ "^/[0-9]+", particularPost)
+  dispatch [ ("GET" &~~ "^/$", newPost)
+           , ("POST" &~~ "^/$", newPostPOST)
+           , ("GET" &~~ "^/[0-9]+", showPost)
+           , ("POST" &~~ "^/[0-9]+", updatePost)
            ] notFound req'
 
-noPost :: Application
-noPost _ = return (ResponseBuilder statusOK [] $ renderHtmlBuilder postPage)
+newPost :: Application
+newPost _ = return (ResponseBuilder statusOK [] $ renderHtmlBuilder postPage)
 
-particularPost :: Application
-particularPost = undefined
+newPostPOST :: Application
+newPostPOST = undefined
+
+showPost :: Application
+showPost = undefined
+
+updatePost :: Application
+updatePost = undefined
 
 postPage :: Html
 postPage = do
