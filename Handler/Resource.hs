@@ -8,7 +8,8 @@ module Handler.Resource (
         resource
     ) where
 
-import Data.Monoid ( Monoid(..) )
+import Data.Text ( stripPrefix, splitOn )
+import Data.Text.Encoding ( decodeUtf8, encodeUtf8 )
 import Logger ( noticeM )
 import Network.Wai ( Application, Request(..) )
 import Network.Wai.Application.Static ( StaticSettings(..)
@@ -18,10 +19,10 @@ import Text.Interpol ( (^-^) )
 
 resource :: Application
 resource req = do
-  -- FIXME Make the following log command handle multi-item paths
-  -- correctly
-  noticeM $ "Serving resource " ^-^ mconcat (pathInfo req)
+  let (Just path) = stripPrefix "/r/" (decodeUtf8 $ rawPathInfo req)
+  noticeM $ "Serving resource " ^-^ path
   staticApp defaultFileServerSettings
                { ssFolder  = fileSystemLookup "r"
                , ssListing = Nothing
-               , ssIndices = [] } req
+               , ssIndices = [] } req { rawPathInfo = encodeUtf8 path
+                                      , pathInfo    = splitOn "/" path }

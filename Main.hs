@@ -10,6 +10,7 @@ import Handler.Resource ( resource )
 import Logger ( setupLogger, noticeM )
 import Network.Wai ( Application, Request(..) )
 import Network.Wai.Handler.Warp ( run )
+import Network.Wai.Middleware.Route ( dispatch, (&~~) )
 import Types ( Conf(..) )
 
 -- FIXME Add some sort of supervision to the server process
@@ -24,10 +25,8 @@ main = do
   -- FIXME Close the database here or something
 
 router :: Conf -> Application
-router conf req =
-    let path = pathInfo req
-    in case path of
-         []               -> index conf req
-         ("post" : path') -> post (req { pathInfo = path' })
-         ("r" : path')    -> resource (req { pathInfo = path' })
-         _                -> notFound req
+router conf =
+    dispatch [ ((=="/") . rawPathInfo, index conf)
+             , ("*" &~~ "^/post", post)
+             , ("GET" &~~ "^/r/", resource)
+             ] notFound
