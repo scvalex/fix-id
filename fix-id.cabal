@@ -15,7 +15,9 @@ Description:
 
 Extra-source-files:     Makefile
 
-Data-files:             README.md
+Data-files:             README.md,
+                        r/404.css,
+                        r/base.css
 
 Source-repository head
   Type:                 git
@@ -28,6 +30,6 @@ Executable fix-id
                         safecopy, acid-state, containers, mtl,
                         wai-middleware-route
   Main-Is:              Main.hs
-  Other-modules:        Handler.NotFound, Handler.Resource,
-                        Logger, Database
+  Other-modules:        Handler.NotFound, Handler.Resource, Handler.Index,
+                        Handler.Post, Logger, Database, Types
   Ghc-options:          -Wall
