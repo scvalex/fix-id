@@ -42,13 +42,14 @@ newState = MyState { getPosts    = IM.empty
 
 $(deriveSafeCopySimple 1 'base ''MyState)
 
-addPost :: Post -> Update MyState ()
+addPost :: Post -> Update MyState Int
 addPost post = do
   state@MyState{ getPosts    = posts
                , getNextPost = postNum } <- get
   let postNum' = postNum + 1
-  put $ state { getPosts    = IM.insert postNum' post posts
+  put $ state { getPosts    = IM.insert postNum post posts
               , getNextPost = postNum' }
+  return postNum
 
 getPost :: Int -> Query MyState (Maybe Post)
 getPost num = do
@@ -62,10 +63,8 @@ getRecentPosts limit = do
 
 $(makeAcidic ''MyState ['addPost, 'getPost, 'getRecentPosts])
 
-addPostM :: (MonadIO m) => Database -> Post -> m ()
-addPostM db post = liftIO $ do
-  _ <- update db (AddPost post)
-  return ()
+addPostM :: (MonadIO m) => Database -> Post -> m Int
+addPostM db post = liftIO $ update db (AddPost post)
 
 getPostM :: (MonadIO m) => Database -> Int -> m (Maybe Post)
 getPostM db num = liftIO $ query db (GetPost num)

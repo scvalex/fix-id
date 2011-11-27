@@ -8,7 +8,7 @@
 
 -- | The 'notFound' handler serves a kick-ass \"404 Not Found\" page.
 module Handler.NotFound (
-        notFound
+        notFound, notFoundResponse
     ) where
 
 import Data.Text ( Text, pack )
@@ -27,6 +27,10 @@ notFound req = do
   noticeM $ "Not found " ^-^ (rawPathInfo req)
   return (ResponseBuilder statusNotFound [] . renderHtmlBuilder .
           notFoundPage . pack $ show req)
+
+notFoundResponse :: (ToHtml a) => a -> Response
+notFoundResponse comment = (ResponseBuilder statusNotFound [] . renderHtmlBuilder $
+                            notFoundPage comment)
 
 notFoundPage :: (ToHtml a) => a -> Html
 notFoundPage comment = do

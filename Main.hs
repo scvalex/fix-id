@@ -27,6 +27,6 @@ main = do
 router :: Conf -> Application
 router conf =
     dispatch [ ("*" &~~ "^/$", index conf)
-             , ("*" &~~ "^/post", post)
+             , ("*" &~~ "^/post", post conf)
              , ("GET" &~~ "^/r/", resource)
              ] notFound

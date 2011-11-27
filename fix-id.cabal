@@ -28,7 +28,8 @@ Executable fix-id
                         http-types, blaze-builder, text, blaze-html,
                         wai-app-static, hslogger, transformers,
                         safecopy, acid-state, containers, mtl,
-                        wai-middleware-route
+                        wai-middleware-route, enumerator, bytestring,
+                        urlencoded
   Main-Is:              Main.hs
   Other-modules:        Handler.NotFound, Handler.Resource, Handler.Index,
                         Handler.Post, Logger, Database, Types
