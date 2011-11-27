@@ -32,5 +32,6 @@ Executable fix-id
                         urlencoded
   Main-Is:              Main.hs
   Other-modules:        Handler.NotFound, Handler.Resource, Handler.Index,
-                        Handler.Post, Logger, Database, Types
+                        Handler.Post, Handler.Response, Logger, Database,
+                        Types
   Ghc-options:          -Wall

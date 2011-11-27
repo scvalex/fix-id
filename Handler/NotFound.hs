@@ -12,6 +12,7 @@ module Handler.NotFound (
     ) where
 
 import Data.Text ( Text, pack )
+import Handler.Response ( basicPage )
 import Logger ( noticeM )
 import Network.HTTP.Types ( statusNotFound )
 import Network.Wai ( Application, Request(..), Response(..) )
@@ -25,31 +26,26 @@ import Text.Interpol ( (^-^) )
 notFound :: Application
 notFound req = do
   noticeM $ "Not found " ^-^ (rawPathInfo req)
-  return (ResponseBuilder statusNotFound [] . renderHtmlBuilder .
-          notFoundPage . pack $ show req)
+  return $ notFoundResponse (pack $ show req)
 
 notFoundResponse :: (ToHtml a) => a -> Response
-notFoundResponse comment = (ResponseBuilder statusNotFound [] . renderHtmlBuilder $
-                            notFoundPage comment)
+notFoundResponse comment =
+    ResponseBuilder statusNotFound [] . renderHtmlBuilder $
+                    notFoundPage comment
 
 notFoundPage :: (ToHtml a) => a -> Html
 notFoundPage comment = do
-  H.docType
-  H.html $ do
-    H.head $ do
-             H.title "404 Not Found"
-             H.link ! A.rel "stylesheet" ! A.type_ "text/css"
-                    ! A.href "/r/base.css"
-             H.link ! A.rel "stylesheet" ! A.type_ "text/css"
-                    ! A.href "/r/404.css"
-    H.body $ do
-             H.header $ do
-                   H.div $ mapM_ number [398..401]
-                   H.div $ mapM_ number [402..405]
-                   H.div $ mapM_ number [406..409]
-             H.article ! A.class_ "comment" $ do
-                   H.div (toHtml comment)
-     where
-       number :: Int -> Html
-       number 404 = H.span (toHtml ("404 " :: Text)) ! A.class_ "missing"
-       number n   = H.span (toHtml n) >> toHtml (" " :: Text)
+  basicPage "404 Not Found"
+            (H.link ! A.rel "stylesheet"
+                    ! A.type_ "text/css"
+                    ! A.href "/r/404.css") $ do
+    H.header $ do
+      H.div $ mapM_ number [398..401]
+      H.div $ mapM_ number [402..405]
+      H.div $ mapM_ number [406..409]
+    H.article ! A.class_ "comment" $ do
+      H.div (toHtml comment)
+   where
+     number :: Int -> Html
+     number 404 = H.span (toHtml ("404 " :: Text)) ! A.class_ "missing"
+     number n   = H.span (toHtml n) >> toHtml (" " :: Text)

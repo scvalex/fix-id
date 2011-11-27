@@ -16,15 +16,14 @@ import qualified Data.URLEncoded as URL
 import Data.Text ( Text )
 import Database ( Database, Post, addPostM, getPostM )
 import Handler.NotFound ( notFound, notFoundResponse )
+import Handler.Response ( basicPage, mkResponse )
 import Logger ( noticeM )
-import Network.HTTP.Types ( statusOK )
-import Network.Wai ( Application, Request(..), Response(..) )
+import Network.Wai ( Application, Request(..), Response )
 import Network.Wai.Middleware.Route ( dispatch, (&~~) )
 import Text.Blaze ( Html, ToHtml(..) )
 import Text.Blaze.Html5 ( (!) )
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
-import Text.Blaze.Renderer.Utf8 ( renderHtmlBuilder )
 import Text.Interpol ( (^-^) )
 import Types ( Conf(..), stripPrefixReq )
 
@@ -39,8 +38,7 @@ post conf req = do
            ] notFound req'
 
 newPost :: Application
-newPost _ =
-    return (ResponseBuilder statusOK [] $ renderHtmlBuilder newPostPage)
+newPost _ = return $ mkResponse newPostPage
 
 newPostPOST :: Conf -> Application
 newPostPOST Conf{getDatabase = db} _ = do
@@ -63,20 +61,13 @@ showPost' db num = do
     Nothing ->
         return $ notFoundResponse ("No such post" :: String)
     Just p ->
-        return $ ResponseBuilder statusOK [] . renderHtmlBuilder
-               $ postPage p
+        return $ mkResponse (postPage p)
 
 updatePost :: Application
 updatePost = undefined
 
 newPostPage :: Html
-newPostPage = do
-  H.docType
-  H.html $ do
-    H.head $ do
-             H.title "New Post"
-    H.body $ do
-             newPostFragment
+newPostPage = basicPage "New Post" (return ()) newPostFragment
 
 newPostFragment :: Html
 newPostFragment = do
@@ -87,13 +78,7 @@ newPostFragment = do
     H.button (toHtml ("Submit" :: Text)) ! A.value "Submit"
 
 postPage :: Post -> Html
-postPage p = do
-  H.docType
-  H.html $ do
-    H.head $ do
-             H.title "Post"
-    H.body $ do
-             postFragment p
+postPage = basicPage "Post" (return ()) . postFragment
 
 postFragment :: Post -> Html
 postFragment p = H.div ! A.class_ "post" $ toHtml p
