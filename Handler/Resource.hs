@@ -8,21 +8,19 @@ module Handler.Resource (
         resource
     ) where
 
-import Data.Text ( stripPrefix, splitOn )
-import Data.Text.Encoding ( decodeUtf8, encodeUtf8 )
 import Logger ( noticeM )
 import Network.Wai ( Application, Request(..) )
 import Network.Wai.Application.Static ( StaticSettings(..)
                                       , staticApp, defaultFileServerSettings
                                       , fileSystemLookup )
 import Text.Interpol ( (^-^) )
+import Types ( stripPrefixReq )
 
 resource :: Application
 resource req = do
-  let (Just path) = stripPrefix "/r/" (decodeUtf8 $ rawPathInfo req)
-  noticeM $ "Serving resource " ^-^ path
+  let (Just req') = stripPrefixReq "/r/" req
+  noticeM $ "Serving resource " ^-^ (rawPathInfo req')
   staticApp defaultFileServerSettings
                { ssFolder  = fileSystemLookup "r"
                , ssListing = Nothing
-               , ssIndices = [] } req { rawPathInfo = encodeUtf8 path
-                                      , pathInfo    = splitOn "/" path }
+               , ssIndices = [] } req'

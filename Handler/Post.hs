@@ -16,10 +16,12 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Renderer.Utf8 ( renderHtmlBuilder )
 import Text.Interpol ( (^-^) )
+import Types ( stripPrefixReq )
 
 post :: Application
 post req = do
-  noticeM $ "Handling post " ^-^ (rawPathInfo req)
+  let (Just req') = stripPrefixReq "/post" req
+  noticeM $ "Handling post " ^-^ (rawPathInfo req')
   return (ResponseBuilder statusOK [] $ renderHtmlBuilder postPage)
 
 postPage :: Html
