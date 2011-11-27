@@ -7,9 +7,11 @@ module Handler.Post (
     ) where
 
 import Data.Text ( Text )
+import Handler.NotFound ( notFound )
 import Logger ( noticeM )
 import Network.HTTP.Types ( statusOK )
 import Network.Wai ( Application, Request(..), Response(..) )
+import Network.Wai.Middleware.Route ( dispatch, (&~~) )
 import Text.Blaze ( Html, ToHtml(..) )
 import Text.Blaze.Html5 ( (!) )
 import qualified Text.Blaze.Html5 as H
@@ -22,7 +24,15 @@ post :: Application
 post req = do
   let (Just req') = stripPrefixReq "/post" req
   noticeM $ "Handling post " ^-^ (rawPathInfo req')
-  return (ResponseBuilder statusOK [] $ renderHtmlBuilder postPage)
+  dispatch [ ("*" &~~ "^/$", noPost)
+           , ("*" &~~ "^/[0-9]+", particularPost)
+           ] notFound req'
+
+noPost :: Application
+noPost _ = return (ResponseBuilder statusOK [] $ renderHtmlBuilder postPage)
+
+particularPost :: Application
+particularPost = undefined
 
 postPage :: Html
 postPage = do

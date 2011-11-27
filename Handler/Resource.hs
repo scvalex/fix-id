@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | The 'resource' handler just serves static files from the @.\/r\/@
--- directory.  It expects the 'pathInfo' part of the 'Request' to be
--- the path to the file under @.\/r\/@.  I.e. any other path prefix
--- should have been stripped already.
+-- directory.
 module Handler.Resource (
         resource
     ) where

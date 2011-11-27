@@ -8,7 +8,7 @@ import Handler.NotFound ( notFound )
 import Handler.Post ( post )
 import Handler.Resource ( resource )
 import Logger ( setupLogger, noticeM )
-import Network.Wai ( Application, Request(..) )
+import Network.Wai ( Application )
 import Network.Wai.Handler.Warp ( run )
 import Network.Wai.Middleware.Route ( dispatch, (&~~) )
 import Types ( Conf(..) )
@@ -26,7 +26,7 @@ main = do
 
 router :: Conf -> Application
 router conf =
-    dispatch [ ((=="/") . rawPathInfo, index conf)
+    dispatch [ ("*" &~~ "^/$", index conf)
              , ("*" &~~ "^/post", post)
              , ("GET" &~~ "^/r/", resource)
              ] notFound
