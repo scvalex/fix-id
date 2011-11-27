@@ -24,6 +24,8 @@ basicPage title extraHead extraBody = do
              H.title (toHtml title)
              H.link ! A.rel "stylesheet" ! A.type_ "text/css"
                     ! A.href "/r/base.css"
+             H.link ! A.rel "icon" ! A.type_ "image/png"
+                    ! A.href "/r/logo.png"
              extraHead
     H.body $ extraBody
 
