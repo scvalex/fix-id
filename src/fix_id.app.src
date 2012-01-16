@@ -1,0 +1,13 @@
+{application, fix_id,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  gen_smtp
+                 ]},
+  {mod, { fix_id_app, []}},
+  {env, []}
+ ]}.
