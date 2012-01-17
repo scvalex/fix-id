@@ -16,5 +16,7 @@ generate: build
 
 clean:
 	rebar clean
-	rm -rf deps
 	find . -name erl_crash.dump -exec rm '{}' \;
+
+squeaky-clean: clean
+	rm -rf deps
