@@ -9,6 +9,7 @@ run: build
 	    -boot start_sasl \
 	    -sasl sasl_error_logger '{file, "/tmp/fix_id.log"}' \
 	    -eval 'application:start(gen_smtp).' \
+	    -eval 'application:start(mnesia).' \
 	    -eval 'application:start(fix_id).'
 
 build: deps

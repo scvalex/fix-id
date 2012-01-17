@@ -8,7 +8,8 @@
   {applications, [
                   kernel,
                   stdlib,
-                  gen_smtp
+                  gen_smtp,
+                  mnesia
                  ]},
   {modules, [email_scraper, fix_id_app, fix_id_sup]},
   {mod, { fix_id_app, []}},
