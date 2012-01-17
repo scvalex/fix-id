@@ -1,6 +1,6 @@
 all: build
 
-.PHONY: all run build deps generate clean
+.PHONY: all run build deps release clean
 
 run: build
 	erl -pa ebin \
@@ -17,8 +17,11 @@ build: deps
 deps:
 	rebar get-deps
 
-generate: build
-	rebar generate
+release: build
+	[ ! -e 'rel/fix_id/bin/fix_id' ] && \
+		rebar generate || \
+		{ echo 'Release already exists; run `make clean` first' ; \
+		  false ; }
 
 clean:
 	rebar clean
