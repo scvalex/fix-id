@@ -8,8 +8,7 @@
 %% Supervisor callbacks
 -export([init/1]).
 
-%% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+-define(MAX_WAIT, 16#ffffffff).
 
 %% ===================================================================
 %% API functions
@@ -23,4 +22,6 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
+    {ok, { {one_for_one, 5, 10},
+           [{email_scraper, {email_scraper, start_link, []},
+             permanent, ?MAX_WAIT, worker, [email_scraper]}] }}.

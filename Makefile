@@ -3,7 +3,13 @@ all: build
 .PHONY: all run build deps generate clean
 
 run: build
-	erl -pa ebin -pa deps/*/ebin -boot start_sasl -sasl sasl_error_logger '{file, "/tmp/fix_id.log"}' -eval 'fix_id_app:start(normal, []).'
+	erl -pa ebin \
+	    -pa deps/*/ebin \
+	    -sname fix_id \
+	    -boot start_sasl \
+	    -sasl sasl_error_logger '{file, "/tmp/fix_id.log"}' \
+	    -eval 'application:start(gen_smtp).' \
+	    -eval 'application:start(fix_id).'
 
 build: deps
 	rebar compile

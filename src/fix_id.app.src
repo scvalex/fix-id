@@ -1,3 +1,5 @@
+%% -*- mode: erlang -*-
+
 {application, fix_id,
  [
   {description, ""},
@@ -8,6 +10,7 @@
                   stdlib,
                   gen_smtp
                  ]},
+  {modules, [email_scraper, fix_id_app, fix_id_sup]},
   {mod, { fix_id_app, []}},
   {env, []}
  ]}.
