@@ -1,13 +1,17 @@
+DB_DIR := "/tmp/fix_id"
+
 all: build
 
-.PHONY: all run build deps release clean
+.PHONY: all run build deps release clean squeaky-clean cleandb
 
 run: build
 	erl -pa ebin \
 	    -pa deps/*/ebin \
 	    -sname fix_id \
+	    -sasl sasl_error_logger '{file, "/tmp/fix_id_sasl.log"}' \
+	    -kernel error_logger '{file, "/tmp/fix_id.log"}' \
 	    -boot start_sasl \
-	    -sasl sasl_error_logger '{file, "/tmp/fix_id.log"}' \
+	    -mnesia dir "\"${DB_DIR}\"" \
 	    -eval 'application:start(gen_smtp).' \
 	    -eval 'application:start(mnesia).' \
 	    -eval 'application:start(fix_id).'
@@ -30,3 +34,6 @@ clean:
 
 squeaky-clean: clean
 	rm -rf deps
+
+cleandb:
+	rm -rf ${DB_DIR}

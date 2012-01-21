@@ -10,6 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+    fix_id_mnesia:init(),
     fix_id_sup:start_link().
 
 stop(_State) ->

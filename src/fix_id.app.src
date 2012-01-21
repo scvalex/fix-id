@@ -11,7 +11,7 @@
                   gen_smtp,
                   mnesia
                  ]},
-  {modules, [email_scraper, fix_id_app, fix_id_sup]},
-  {mod, { fix_id_app, []}},
-  {env, []}
+  {modules, [fix_id_email_scraper, fix_id_app, fix_id_sup, fix_id_mnesia]},
+  {mod, {fix_id_app, []}},
+  {env, [{mnesia_dir, "/tmp/fix_id"}]}
  ]}.
