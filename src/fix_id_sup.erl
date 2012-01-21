@@ -23,5 +23,5 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_one, 5, 10},
-           [{email_scraper, {email_scraper, start_link, []},
-             permanent, ?MAX_WAIT, worker, [email_scraper]}] }}.
+           [{fix_id_email_scraper, {fix_id_email_scraper, start_link, []},
+             permanent, ?MAX_WAIT, worker, [fix_id_email_scraper]}] }}.

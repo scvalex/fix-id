@@ -1,4 +1,4 @@
--module(email_scraper).
+-module(fix_id_email_scraper).
 
 -behaviour(gen_smtp_server_session).
 
