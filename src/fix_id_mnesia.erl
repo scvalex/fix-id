@@ -7,8 +7,8 @@
 
 init() ->
     {ok, MnesiaDir} = application:get_env(mnesia_dir),
-    io:format("Mnesia dir is ~p~n", [MnesiaDir]),
-    application_controller:set_env(mnesia, dir, MnesiaDir),
+    application:set_env(mnesia, dir, MnesiaDir),
+    application:start(mnesia),
     error_logger:info_msg("Mnesia directory: ~p~n", [dir()]),
     ok = ensure_schema(),
     ok = mnesia:start(),
