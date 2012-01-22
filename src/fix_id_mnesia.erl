@@ -6,9 +6,6 @@
 -record(fix_id_version, {application, version}).
 
 init() ->
-    {ok, MnesiaDir} = application:get_env(mnesia_dir),
-    application:set_env(mnesia, dir, MnesiaDir),
-    application:start(mnesia),
     error_logger:info_msg("Mnesia directory: ~p~n", [dir()]),
     ok = ensure_schema(),
     ok = mnesia:start(),

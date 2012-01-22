@@ -8,9 +8,11 @@
   {applications, [
                   kernel,
                   stdlib,
-                  gen_smtp
+                  gen_smtp,
+                  mnesia
                  ]},
+  {included_applications, []},
   {modules, [fix_id_email_scraper, fix_id_app, fix_id_sup, fix_id_mnesia]},
   {mod, {fix_id_app, []}},
-  {env, [{mnesia_dir, "/tmp/fix_id"}]}
+  {env, []}
  ]}.

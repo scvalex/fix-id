@@ -10,9 +10,10 @@ run: build
 	    -sname fix_id \
 	    -sasl sasl_error_logger '{file, "/tmp/fix_id_sasl.log"}' \
 	    -kernel error_logger '{file, "/tmp/fix_id.log"}' \
+	    -mnesia dir "\"${DB_DIR}\"" \
 	    -boot start_sasl \
 	    -eval 'application:start(gen_smtp).' \
-	    -eval 'application:load(mnesia).' \
+	    -eval 'application:start(mnesia).' \
 	    -eval 'application:start(fix_id).'
 
 build: deps
