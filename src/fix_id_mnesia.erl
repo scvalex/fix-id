@@ -6,11 +6,11 @@
 -record(fix_id_version, {application, version}).
 
 init() ->
-    error_logger:info_msg("Mnesia directory: ~p~n", [dir()]),
+    lager:info("Mnesia directory: ~p~n", [dir()]),
     ok = ensure_schema(),
     ok = mnesia:start(),
     ok = ensure_tables(),
-    error_logger:info_msg("Database started normally~n"),
+    lager:info("Database started normally~n"),
     ok.
 
 %% Fix-id table definitions.
@@ -71,7 +71,7 @@ create_tables() ->
                      #fix_id_version{application = fix_id,
                                      version     = ?CURRENT_VERSION})
           end),
-    error_logger:info_msg("Created fresh tables (v~p)~n", [?CURRENT_VERSION]),
+    lager:info("Created fresh tables (v~p)~n", [?CURRENT_VERSION]),
     ok.
 
 %% Find the mnesia directory.

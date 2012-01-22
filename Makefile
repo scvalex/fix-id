@@ -8,10 +8,9 @@ run: build
 	erl -pa ebin \
 	    -pa deps/*/ebin \
 	    -sname fix_id \
-	    -sasl sasl_error_logger '{file, "/tmp/fix_id_sasl.log"}' \
-	    -kernel error_logger '{file, "/tmp/fix_id.log"}' \
-	    -mnesia dir "\"${DB_DIR}\"" \
+	    -config dev.config \
 	    -boot start_sasl \
+	    -eval 'application:start(lager).' \
 	    -eval 'application:start(gen_smtp).' \
 	    -eval 'application:start(mnesia).' \
 	    -eval 'application:start(fix_id).'
