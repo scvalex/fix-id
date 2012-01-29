@@ -8,6 +8,8 @@
   {applications, [
                   kernel,
                   stdlib,
+                  syntax_tools,
+                  compiler,
                   lager,
                   gen_smtp,
                   mnesia
