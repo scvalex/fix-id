@@ -10,6 +10,8 @@ run: build
 	    -sname fix_id \
 	    -config dev.config \
 	    -boot start_sasl \
+	    -eval 'application:start(syntax_tools).' \
+	    -eval 'application:start(compiler).' \
 	    -eval 'application:start(lager).' \
 	    -eval 'application:start(gen_smtp).' \
 	    -eval 'application:start(mnesia).' \
