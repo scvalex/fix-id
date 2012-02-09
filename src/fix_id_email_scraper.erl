@@ -35,14 +35,14 @@ start_link() ->
          Address :: tuple(), Options :: list()) ->
                      {'ok', string(), #state{}} | {'stop', any(), string()}).
 init(Hostname, SessionCount, Address, Options) ->
-    io:format("peer: ~p~n", [Address]),
+    lager:info("Connected peer: ~p", [Address]),
     case SessionCount > 20 of
         false ->
             Banner = [Hostname, " ESMTP smtp_server_example"],
             State = #state{options = Options},
             {ok, Banner, State};
         true ->
-            io:format("Connection limit exceeded~n"),
+            lager:info("Connection limit exceeded"),
             {stop, normal, ["421 ", Hostname,
                             " is too busy to accept mail right now"]}
     end.
@@ -63,13 +63,10 @@ init(Hostname, SessionCount, Address, Options) ->
         (Hostname :: binary(), State :: #state{}) ->
                             {'ok', pos_integer(), #state{}} |
                             {'ok', #state{}} | error_message()).
-handle_HELO(<<"invalid">>, State) ->
-    %% contrived example
-    {error, "554 invalid hostname", State};
 handle_HELO(<<"trusted_host">>, State) ->
     {ok, State}; %% no size limit because we trust them.
 handle_HELO(Hostname, State) ->
-    io:format("HELO from ~s~n", [Hostname]),
+    lager:info("HELO from ~s", [Hostname]),
     {ok, 655360, State}. %% 640kb of HELO should be enough for anyone.
                          %% If {ok, State} was returned here, we'd use
                          %% the default 10mb limit
@@ -91,7 +88,7 @@ handle_EHLO(<<"invalid">>, _Extensions, State) ->
     %% contrived example
     {error, "554 invalid hostname", State};
 handle_EHLO(Hostname, Extensions, State) ->
-    io:format("EHLO from ~s~n", [Hostname]),
+    lager:info("EHLO from ~s", [Hostname]),
     %% You can advertise additional extensions, or remove some defaults
     MyExtensions =
         case proplists:get_value(auth, State#state.options, false) of
@@ -116,7 +113,7 @@ handle_EHLO(Hostname, Extensions, State) ->
 handle_MAIL(<<"badguy@blacklist.com">>, State) ->
     {error, "552 go away", State};
 handle_MAIL(From, State) ->
-    io:format("Mail from ~s~n", [From]),
+    lager:info("Mail from ~s", [From]),
     %% you can accept or reject the FROM address here
     {ok, State}.
 
@@ -126,11 +123,11 @@ handle_MAIL(From, State) ->
         (Extension :: binary(), State :: #state{}) ->
                                       {'ok', #state{}} | 'error').
 handle_MAIL_extension(<<"X-SomeExtension">> = Extension, State) ->
-    io:format("Mail from extension ~s~n", [Extension]),
+    lager:info("Mail from extension ~s", [Extension]),
     %% any MAIL extensions can be handled here
     {ok, State};
 handle_MAIL_extension(Extension, _State) ->
-    io:format("Unknown MAIL FROM extension ~s~n", [Extension]),
+    lager:info("Unknown MAIL FROM extension ~s", [Extension]),
     error.
 
 -spec(handle_RCPT/2 ::
@@ -139,19 +136,15 @@ handle_MAIL_extension(Extension, _State) ->
 handle_RCPT(<<"nobody@example.com">>, State) ->
     {error, "550 No such recipient", State};
 handle_RCPT(To, State) ->
-    io:format("Mail to ~s~n", [To]),
+    lager:info("Mail to ~s", [To]),
     %% you can accept or reject RCPT TO addesses here, one per call
     {ok, State}.
 
 -spec(handle_RCPT_extension/2 ::
         (Extension :: binary(), State :: #state{}) ->
                                       {'ok', #state{}} | 'error').
-handle_RCPT_extension(<<"X-SomeExtension">> = Extension, State) ->
-    %% any RCPT TO extensions can be handled here
-    io:format("Mail to extension ~s~n", [Extension]),
-    {ok, State};
 handle_RCPT_extension(Extension, _State) ->
-    io:format("Unknown RCPT TO extension ~s~n", [Extension]),
+    lager:info("Unknown RCPT TO extension ~s", [Extension]),
     error.
 
 -spec(handle_DATA/4 ::
@@ -172,19 +165,20 @@ handle_DATA(From, To, Data, State) ->
         true ->
             relay(From, To, Data);
         false ->
-            io:format("message from ~s to ~p queued as ~s, body length ~p~n",
-                      [From, To, Reference, byte_size(Data)]),
+            lager:info("Message from ~s to ~p queued as ~s, body length ~p",
+                       [From, To, Reference, byte_size(Data)]),
             case proplists:get_value(parse, State#state.options, false) of
                 false ->
                     ok;
                 true ->
                     try mimemail:decode(Data) of
-                        _Result ->
-                            io:format("Message decoded successfully!~n")
+                        Result ->
+                            lager:info("Message decoded successfully!~n'~p'",
+                                       [Result])
                     catch
                         What:Why ->
-                            io:format("Message decode FAILED with ~p:~p~n",
-                                      [What, Why]),
+                            lager:info("Message decode FAILED with ~p:~p",
+                                       [What, Why]),
                             case proplists:get_value(dump,
                                                      State#state.options,
                                                      false) of
@@ -216,15 +210,15 @@ handle_RSET(State) ->
 -spec(handle_VRFY/2 :: (Address :: binary(), State :: #state{}) ->
                             {'ok', string(), #state{}} |
                             {'error', string(), #state{}}).
-handle_VRFY(<<"someuser">>, State) ->
-    {ok, "someuser@" ++ smtp_util:guess_FQDN(), State};
-handle_VRFY(_Address, State) ->
+handle_VRFY(Address, State) ->
+    lager:info("VRFY ~p", [Address]),
     {error, "252 VRFY disabled by policy, just send some mail", State}.
 
 -spec(handle_other/3 ::
         (Verb :: binary(), Args :: binary(), #state{}) ->
                              {string(), #state{}}).
-handle_other(Verb, _Args, State) ->
+handle_other(Verb, Args, State) ->
+    lager:info("Other verb '~p': ~p", [Verb, Args]),
     %% You can implement other SMTP verbs here, if you need to
     {["500 Error: command not recognized : '", Verb, "'"], State}.
 
@@ -244,7 +238,8 @@ handle_AUTH('cram-md5', <<"username">>, {Digest, Seed}, State) ->
         _ ->
             error
     end;
-handle_AUTH(_Type, _Username, _Password, _State) ->
+handle_AUTH(Type, Username, _Password, _State) ->
+    lager:info("AUTH '~p': ~p", [Type, Username]),
     error.
 
 -spec(code_change/3 ::

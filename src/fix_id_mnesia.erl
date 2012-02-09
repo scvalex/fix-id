@@ -7,11 +7,11 @@
 -record(fix_id_raw_emails, {sha, from, to, data}).
 
 init() ->
-    lager:info("Mnesia directory: ~p~n", [dir()]),
+    lager:info("Mnesia directory: ~p", [dir()]),
     ok = ensure_schema(),
     ok = mnesia:start(),
     ok = ensure_tables(),
-    lager:info("Database started normally~n"),
+    lager:info("Database started normally"),
     ok.
 
 %% Fix-id table definitions.
@@ -47,8 +47,8 @@ ensure_tables() ->
             create_tables(tables());
         [{fix_id_version, fix_id, OtherVersion}]
           when OtherVersion =< ?CURRENT_VERSION ->
-            ok = lists:foldl(fun(Version, ok) ->
-                                     upgrade_tables(Version)
+            ok = lists:foldl(fun(Vsn, ok) ->
+                                     upgrade_tables(Vsn)
                              end, ok, lists:seq(OtherVersion + 1,
                                                 ?CURRENT_VERSION))
     end.
@@ -86,7 +86,7 @@ create_tables(Tables) ->
                      #fix_id_version{application = fix_id,
                                      version     = ?CURRENT_VERSION})
           end),
-    lager:info("Created fresh tables ~p (v~p)~n", [Tables, ?CURRENT_VERSION]),
+    lager:info("Created fresh tables ~p (v~p)", [Tables, ?CURRENT_VERSION]),
     ok.
 
 %% Find the mnesia directory.
