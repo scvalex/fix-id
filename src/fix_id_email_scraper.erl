@@ -19,7 +19,10 @@
 %% @doc Start the email server with default options.
 -spec(start_link/0 :: () -> {'ok', pid()} | 'ignore' | {'error', any()}).
 start_link() ->
-    gen_smtp_server:start_link(?MODULE).
+    case application:get_env(email_port) of
+        undefined  -> gen_smtp_server:start_link(?MODULE);
+        {ok, Port} -> gen_smtp_server:start_link(?MODULE, [[{port, Port}]])
+    end.
 
 %% @doc Initialize the callback module's state for a new session.
 %%

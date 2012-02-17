@@ -9,11 +9,8 @@ HOST="$1"
 
 echo "Deploying to ${HOST}"
 
-echo "  * Cleaning deploy directory"
-ssh "${HOST}" 'sudo rm -rf /src/sites/fix_id'
-
 echo "  * Copying files"
-scp -r rel/fix_id/ "${HOST}:/src/sites/"
+rsync -avz rel/fix_id/ "${HOST}:/src/sites/fix_id/"
 scp fix_id.init "${HOST}:/src/sites/fix_id/"
 
 echo "  * Restarting application"
