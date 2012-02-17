@@ -1,0 +1,19 @@
+#!/sbin/runscript
+# -*- mode: sh -*-
+
+depend() {
+    need net
+}
+
+start() {
+  ebegin "Starting fix_id"
+  start-stop-daemon --user scvalex --start --exec /src/sites/fix_id/bin/fix_id \
+    --pidfile /src/sites/fix_id/pid -- start
+  eend $?
+}
+
+stop() {
+  ebegin "Stopping fix_id"
+  /src/sites/fix_id/bin/fix_id stop
+  eend $?
+}
