@@ -24,7 +24,7 @@ deps:
 	rebar get-deps
 
 release: build
-	[ ! -e 'rel/fix_id/bin/fix_id' ] && \
+	@[ ! -e 'rel/fix_id/bin/fix_id' ] && \
 		rebar generate || \
 		{ echo 'Release already exists; run `make clean` first' ; \
 		  false ; }
