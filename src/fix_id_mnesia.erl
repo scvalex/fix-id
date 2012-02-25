@@ -1,10 +1,10 @@
 -module(fix_id_mnesia).
 
--export([init/0]).
+-export([init/0, add_raw_email/3]).
 
--define(CURRENT_VERSION, 2).
+-define(CURRENT_VERSION, 3).
 -record(fix_id_version, {application, version}).
--record(fix_id_raw_emails, {sha, from, to, data}).
+-record(fix_id_raw_email, {sha, from, to, data}).
 
 init() ->
     lager:info("Mnesia directory: ~p", [dir()]),
@@ -19,8 +19,8 @@ tables() ->
     [{fix_id_version,
       [{attributes, record_info(fields, fix_id_version)},
        {disc_copies, [node()]}]},
-     {fix_id_raw_emails,
-      [{attributes, record_info(fields, fix_id_raw_emails)},
+     {fix_id_raw_email,
+      [{attributes, record_info(fields, fix_id_raw_email)},
        {disc_copies, [node()]}]}].
 
 %% Create the disc schema.  Don't fail if it already exists.
@@ -67,6 +67,11 @@ ensure_on_disc() ->
     end.
 
 %% Upgrade existing tables to an existing version.
+upgrade_tables(3) ->
+    {atomic, ok} = mnesia:delete_table(fix_id_raw_emails),
+    create_tables(lists:filter(fun({Name, _}) ->
+                                       Name == fix_id_raw_email
+                                  end, tables()));
 upgrade_tables(2) ->
     create_tables(lists:filter(fun({Name, _}) ->
                                        Name == fix_id_raw_emails
@@ -87,6 +92,13 @@ create_tables(Tables) ->
                                      version     = ?CURRENT_VERSION})
           end),
     lager:info("Created fresh tables ~p (v~p)", [Tables, ?CURRENT_VERSION]),
+    ok.
+
+%% Add a raw email to the database.
+add_raw_email(From, To, Data) ->
+    Sha = crypto:sha(From ++ To ++ Data),
+    Email = #fix_id_raw_email{sha = Sha, from = From, to = To, data = Data},
+    {atomic, ok} = mnesia:transaction(fun() -> mnesia:write(Email) end),
     ok.
 
 %% Find the mnesia directory.

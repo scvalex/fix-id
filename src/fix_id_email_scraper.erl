@@ -12,7 +12,8 @@
 
 -define(RELAY, true).
 
--record(state, { options = [] :: list() }).
+-record(state, { from :: string() | 'undefined',
+                 to   :: string() | 'undefined' }).
 
 -type(error_message() :: {'error', string(), #state{}}).
 
@@ -37,12 +38,13 @@ start_link() ->
         (Hostname :: binary(), SessionCount :: non_neg_integer(),
          Address :: tuple(), Options :: list()) ->
                      {'ok', string(), #state{}} | {'stop', any(), string()}).
-init(Hostname, SessionCount, Address, Options) ->
+init(Hostname, SessionCount, Address, _Options) ->
     lager:info("Connected peer: ~p", [Address]),
     case SessionCount > 20 of
         false ->
-            Banner = [Hostname, " ESMTP smtp_server_example"],
-            State = #state{options = Options},
+            Banner = [Hostname, " Fix-Id Email Scraper"],
+            State = #state{from = 'undefined',
+                           to   = 'undefined'},
             {ok, Banner, State};
         true ->
             lager:info("Connection limit exceeded"),
@@ -92,17 +94,7 @@ handle_EHLO(<<"invalid">>, _Extensions, State) ->
     {error, "554 invalid hostname", State};
 handle_EHLO(Hostname, Extensions, State) ->
     lager:info("EHLO from ~s", [Hostname]),
-    %% You can advertise additional extensions, or remove some defaults
-    MyExtensions =
-        case proplists:get_value(auth, State#state.options, false) of
-            true ->
-                %% auth is enabled, so advertise it
-                Extensions ++ [{"AUTH", "PLAIN LOGIN CRAM-MD5"},
-                               {"STARTTLS", true}];
-            false ->
-                Extensions
-        end,
-    {ok, MyExtensions, State}.
+    {ok, Extensions, State}.
 
 %% @doc Handle the MAIL FROM verb. The From argument is the email
 %% address specified by the MAIL FROM command. Extensions to the MAIL
@@ -164,41 +156,22 @@ handle_DATA(From, To, Data, State) ->
                           <<X>> <= erlang:md5(term_to_binary(erlang:now()))]),
     %% if RELAY is true, then relay email to email address, else send
     %% email data to console
-    case proplists:get_value(relay, State#state.options, false) of
-        true ->
-            relay(From, To, Data);
-        false ->
-            lager:info("Message from ~s to ~p queued as ~s, body length ~p",
-                       [From, To, Reference, byte_size(Data)]),
-            case proplists:get_value(parse, State#state.options, false) of
-                false ->
-                    ok;
-                true ->
-                    try mimemail:decode(Data) of
-                        Result ->
-                            lager:info("Message decoded successfully!~n'~p'",
-                                       [Result])
-                    catch
-                        What:Why ->
-                            lager:info("Message decode FAILED with ~p:~p",
-                                       [What, Why]),
-                            case proplists:get_value(dump,
-                                                     State#state.options,
-                                                     false) of
-                                false ->
-                                    ok;
-                                true ->
-                                    %% optionally dump the failed
-                                    %% email somewhere for analysis
-                                    File = "dump/"++Reference,
-                                    case filelib:ensure_dir(File) of
-                                        ok ->
-                                            file:write_file(File, Data);
-                                        _ ->
-                                            ok
-                                    end
-                            end
-                    end
+    lager:info("Message from ~s to ~p queued as ~s, body length ~p",
+               [From, To, Reference, byte_size(Data)]),
+    ok = fix_id_mnesia:add_raw_email(From, To, Data),
+    try mimemail:decode(Data) of
+        Result -> lager:info("Message decoded successfully!~n'~p'", [Result])
+    catch
+        What:Why ->
+            lager:info("Message decode FAILED with ~p:~p", [What, Why]),
+            %% optionally dump the failed
+            %% email somewhere for analysis
+            File = "dump/"++Reference,
+            case filelib:ensure_dir(File) of
+                ok ->
+                    file:write_file(File, Data);
+                _ ->
+                    ok
             end
     end,
     %% At this point, if we return ok, we've accepted responsibility
@@ -236,10 +209,8 @@ handle_AUTH(Type, <<"username">>, <<"PaSSw0rd">>, State)
     {ok, State};
 handle_AUTH('cram-md5', <<"username">>, {Digest, Seed}, State) ->
     case smtp_util:compute_cram_digest(<<"PaSSw0rd">>, Seed) of
-        Digest ->
-            {ok, State};
-        _ ->
-            error
+        Digest -> {ok, State};
+        _      -> error
     end;
 handle_AUTH(Type, Username, _Password, _State) ->
     lager:info("AUTH '~p': ~p", [Type, Username]),
@@ -257,12 +228,3 @@ terminate(Reason, State) ->
     {ok, Reason, State}.
 
 %%% Internal Functions %%%
-
-relay(_, [], _) ->
-    ok;
-relay(From, [To|Rest], Data) ->
-    %% relay message to email address
-    [_User, Host] = string:tokens(To, "@"),
-    gen_smtp_client:send({From, [To], erlang:binary_to_list(Data)},
-                         [{relay, Host}]),
-    relay(From, Rest, Data).
