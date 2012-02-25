@@ -158,7 +158,9 @@ handle_DATA(From, To, Data, State) ->
     %% email data to console
     lager:info("Message from ~s to ~p queued as ~s, body length ~p",
                [From, To, Reference, byte_size(Data)]),
-    ok = fix_id_mnesia:add_raw_email(From, To, Data),
+    ok = fix_id_mnesia:add_raw_email(erlang:binary_to_list(From),
+                                     [erlang:binary_to_list(Recp) || Recp <- To],
+                                     erlang:binary_to_list(Data)),
     try mimemail:decode(Data) of
         Result -> lager:info("Message decoded successfully!~n'~p'", [Result])
     catch

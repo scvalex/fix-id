@@ -96,7 +96,7 @@ create_tables(Tables) ->
 
 %% Add a raw email to the database.
 add_raw_email(From, To, Data) ->
-    Sha = crypto:sha(From ++ To ++ Data),
+    Sha = crypto:sha(From ++ lists:append(To) ++ Data),
     Email = #fix_id_raw_email{sha = Sha, from = From, to = To, data = Data},
     {atomic, ok} = mnesia:transaction(fun() -> mnesia:write(Email) end),
     ok.

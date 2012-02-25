@@ -14,6 +14,7 @@ run: build
 	    -eval 'application:start(compiler).' \
 	    -eval 'application:start(lager).' \
 	    -eval 'application:start(gen_smtp).' \
+	    -eval 'application:start(crypto).' \
 	    -eval 'application:start(mnesia).' \
 	    -eval 'application:start(fix_id).'
 
